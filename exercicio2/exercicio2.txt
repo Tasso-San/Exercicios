@@ -1,0 +1,135 @@
+/* Exercício 2                                (txt formatado para janela grande ou maximizada)
+
+     Será pressuposto que as tabelas estejam inicialmente vazias para que, de acordo
+     com os dados populados na parte 2, os resultados da parte 1 e dos testes sejam válidos.
+   
+   Parte 1
+   
+  A query a seguir recupera de forma automatizada o número de clientes únicos
+  que realizaram compras entre 30 e 29 dias atrás.
+
+  De acordo com as tabelas populadas na segunda parte do exercício,
+  embora haja cinco compras no período, apenas três clientes as realizaram.
+
+  A coluna "usuario_id" da tabela "compra" é uma foreign key, com referência à primary key
+  da tabela "usuários" (coluna "id") nesse caso de preenchimento obrigatório (not null).
+  
+  Este SELECT conta o número de IDs dos usuários únicos que compraram algo nesse período;
+  como mencionado, 3.                                                                     */
+
+SELECT COUNT(DISTINCT usuario_id) as "Clientes únicos"
+  FROM compra
+  WHERE momentoDaCompra > CURRENT_DATE - 31
+    AND momentoDaCompra <= CURRENT_DATE - 29;
+
+/* DISTINCT, dentro da função COUNT, remove redundâncias na contagem de clientes,
+   assim apenas o número de clientes únicos é recuperado (se não houvesse DISTINCT,
+   o resultado seria outro).
+   
+   "as" sucedido de "Clientes únicos" serve apenas para "apelidar" a contagem,
+   tornando a saída de dados mais inteligível.
+    
+  
+  
+   Parte 2
+
+  Visto que as tabelas "email" e "compra" possuem foreign key em suas colunas "usuario_id",
+  tendo como referência a primary key da tabela "usuario" (coluna "id"), é necessário inserir
+  no mínimo alguma ID na tabela "usuario" antes de popular as outras duas.
+  
+  Essa obrigatoriedade é útil sobretudo para que seja negado o registro de uma compra
+  quando o ID do cliente (usuário) não existe.
+
+  Os e-mails foram inseridos apenas para fins ilustrativos, já que não são solicitados
+  na query principal do exercício.
+  
+  Início de inserts de clientes (tabela "usuario") e seus e-mails (tabela "email"):    */
+
+INSERT INTO usuario (id,nome)
+VALUES (1,'Jane');
+
+INSERT INTO email (id,usuario_id,email)
+VALUES (10,1,'jane@janemail.com');
+
+INSERT INTO usuario (id,nome)
+VALUES (2,'John');
+
+INSERT INTO email (id,usuario_id,email)
+VALUES (12,2,'john@jmail.com');
+
+INSERT INTO usuario (id,nome)
+VALUES (3,'Michel');
+
+INSERT INTO email (id,usuario_id,email)
+VALUES (14,3,'michel@mmail.com');
+
+INSERT INTO usuario (id,nome)
+VALUES (4,'Gilbert');
+
+INSERT INTO email (id,usuario_id,email)
+VALUES (45,4,'gilbert@gilmail.com');
+
+/* Foram inseridos 4 clientes (IDs: 1, 2, 3, 4).
+
+  Início de inserts de compras (em uma situação real de compra,
+  a data seria especificada de outra maneira; inseri deste modo para facilitar
+  a execução do script e recuperar os resultados corretos do exercício,
+  independentemente do dia da execução).                                      */
+
+INSERT INTO compra (id, usuario_id, valor, momentoDaCompra)
+VALUES (1020,2,500, current_date - 33);
+
+INSERT INTO compra (id, usuario_id, valor, momentoDaCompra)
+VALUES (3057,1,500, current_date - 32);
+
+INSERT INTO compra (id, usuario_id, valor, momentoDaCompra)
+VALUES (2090,2,500, current_date - 31);
+
+INSERT INTO compra (id, usuario_id, valor, momentoDaCompra)
+VALUES (6102,1,500, current_date - 30);
+
+INSERT INTO compra (id, usuario_id, valor, momentoDaCompra)
+VALUES (9155,4,500, current_date - 30);
+
+INSERT INTO compra (id, usuario_id, valor, momentoDaCompra)
+VALUES (4162,4,500, current_date - 29);
+
+INSERT INTO compra (id, usuario_id, valor, momentoDaCompra)
+VALUES (3220,2,500, current_date - 29);
+
+INSERT INTO compra (id, usuario_id, valor, momentoDaCompra)
+VALUES (2300,1,500, current_date - 29);
+
+INSERT INTO compra (id, usuario_id, valor, momentoDaCompra)
+VALUES (1350,4,500, current_date - 28);
+
+INSERT INTO compra (id, usuario_id, valor, momentoDaCompra)
+VALUES (2120,3,500, current_date - 28);
+
+/* Fim de inserts, foram inseridas 10 compras (5 delas no período entre 30 e 29 dias atrás,
+   realizadas por 3 clientes únicos).
+
+
+
+   Testes adicionais para garantir a precisão da query
+
+   Este teste mostra as datas das compras e os ids dos compradores,
+   nos resultados aparecem apenas os dois dias solicitados.*/
+SELECT momentoDaCompra, usuario_id
+FROM compra
+WHERE momentoDaCompra > CURRENT_DATE-31 AND momentoDaCompra <= CURRENT_DATE-29;s
+
+
+/* Este teste mostra ao lado de cada ID o número de compras que esse usuário fez no período;
+   basta contar as linhas recuperadas para encontrar o número de clientes únicos (3). */
+SELECT usuario_id as "Lista de IDs", COUNT(usuario_id) as "Número de Compras"
+  FROM compra
+  WHERE momentoDaCompra > CURRENT_DATE-31
+    AND momentoDaCompra <= CURRENT_DATE-29
+  GROUP BY usuario_id;
+
+/* Esses dois testes foram feitos para uma base de dados ainda bastante modesta,
+   mas assim que se comprova sua eficácia em relação a tabelas com poucas linhas,
+   a query da parte 1 já pode ser utilizada em grande escala, pois a proporção não se altera.
+   
+   
